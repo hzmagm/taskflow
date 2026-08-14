@@ -36,6 +36,9 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
+            environment {
+                KUBECONFIG = 'C:\\Users\\33695\\.kube\\config'
+            }
             steps {
                         bat 'kubectl apply -f k8s/deployment.yml'
 
