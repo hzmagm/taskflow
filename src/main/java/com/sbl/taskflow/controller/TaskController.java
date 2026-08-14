@@ -2,6 +2,7 @@ package com.sbl.taskflow.controller;
 
 import com.sbl.taskflow.entity.Task;
 import com.sbl.taskflow.service.TaskService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,17 +17,17 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    public ResponseEntity<Task> createTask(@RequestBody Task task){
+    public ResponseEntity<Task> createTask(@Valid @RequestBody Task task){
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(taskService.createTask(task));
     }
-    @GetMapping("/AllTasks/{id}")
-    public ResponseEntity<List<Task>> getAllTasks(@PathVariable Long id){
+    @GetMapping
+    public ResponseEntity<List<Task>> getAllTasks(){
         return ResponseEntity.ok(taskService.getAllTasks());
     }
 
-    @GetMapping("/taskbyid/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable Long Id){
         return ResponseEntity.ok(taskService.getTaskById(Id));
     }
