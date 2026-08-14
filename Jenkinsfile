@@ -37,10 +37,11 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                // Updates image tag dynamically and applies manifests
-                bat """
-                    kubectl set image -f k8s/deployment.yml taskflow=${DOCKER_IMAGE}:${IMAGE_TAG} --local -o yaml | kubectl apply -f -
-                """
+                        bat 'kubectl apply -f k8s/deployment.yml'
+
+                        bat "kubectl set image deployment/taskflow-app taskflow=hzmasbl/taskflow:${BUILD_NUMBER}"
+
+                        bat 'kubectl rollout status deployment/taskflow-app'
             }
         }
     }

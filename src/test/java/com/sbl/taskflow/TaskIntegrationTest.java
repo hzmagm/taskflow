@@ -25,7 +25,6 @@ class TaskIntegrationTest {
     @Autowired
     TaskRepository taskRepository;
 
-    // 2. Clean the database before every test
     @BeforeEach
     void setUp() {
         taskRepository.deleteAll();
@@ -44,7 +43,6 @@ class TaskIntegrationTest {
                 }
                 """;
 
-        // Perform the POST request and assert the results
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(taskJson))
@@ -56,7 +54,6 @@ class TaskIntegrationTest {
 
     @Test
     void shouldFetchAllTasks() throws Exception {
-        // Arrange: Add a task to the DB first
         String taskJson = """
                 {
                     "title": "Review Java 21 features",
@@ -68,7 +65,6 @@ class TaskIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(taskJson))
                 .andExpect(status().isCreated());
-        // Act & Assert: Fetch tasks and ensure there is 1 in the list
         mockMvc.perform(get("/api/tasks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
