@@ -1,6 +1,12 @@
 pipeline {
     agent any
+triggers {
+        // Polls GitHub every 2 minutes for new commits
+        pollSCM('H/1 * * * *')
 
+        // OR for Webhooks:
+        // githubPush()
+    }
     environment {
         DOCKER_IMAGE = 'hzmasbl/taskflow'
         IMAGE_TAG = "${BUILD_NUMBER}"
