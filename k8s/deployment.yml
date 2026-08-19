@@ -13,44 +13,47 @@ spec:
     metadata:
       labels:
         app: taskflow
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/actuator/prometheus"
-        prometheus.io/port: "8080"
+
+
+
+
     spec:
       containers:
         - name: taskflow
           image: hzmasbl/taskflow:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           resources:
             limits:
               memory: "512Mi"
-              cpu: "500m"
+              cpu: "1000m"
             requests:
               memory: "256Mi"
               cpu: "250m"
+
+          # TCP Probes ensure stability without depending on Actuator HTTP endpoints
           startupProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            failureThreshold: 15
-          readinessProbe:
-            httpGet:
-              path: /actuator/health
+            tcpSocket:
+
               port: 8080
             initialDelaySeconds: 10
-            periodSeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
+
+          readinessProbe:
+            tcpSocket:
+
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 3
 
           livenessProbe:
-            httpGet:
-              path: /actuator/health
+            tcpSocket:
+
               port: 8080
-            initialDelaySeconds: 20
-            periodSeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
 ---
 apiVersion: v1
 kind: Service

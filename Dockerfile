@@ -1,18 +1,15 @@
-# Stage 1: Build the JAR
-FROM maven:3.9-eclipse-temurin-21 AS build
-WORKDIR /app
-COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
-RUN ./mvnw dependency:go-offline -B
-
-COPY src ./src
-RUN ./mvnw clean package -DskipTests
-
-# Stage 2: Minimal runtime image
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
 
+# Security: Run as a dedicated non-root user
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+
+# Copy the pre-built JAR from the Jenkins workspace target folder
+COPY target/*.jar app.jar
+
+# Matches your application's configured port
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Production JVM container optimizations to prevent OOM kills
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]

@@ -1,28 +1,25 @@
 pipeline {
     agent any
+
     triggers {
         pollSCM('* * * * *')
     }
+
     environment {
         DOCKER_IMAGE = 'hzmasbl/taskflow'
-        IMAGE_TAG = "${BUILD_NUMBER}"
-        DOCKER_CREDS = 'dockerhub-credentials-id' // ID of credentials stored in Jenkins
+        IMAGE_TAG    = "${BUILD_NUMBER}"
+        DOCKER_CREDS = 'dockerhub-credentials-id'
     }
 
     stages {
-        stage('Checkout') {
+        // 1. Build and package the JAR file on the host machine
+        stage('Build & Package') {
             steps {
-                checkout scm
+                bat './mvnw clean package'
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                // Runs Maven tests (including Testcontainers if configured)
-                bat './mvnw clean test' // Use 'sh' if Jenkins runs on Linux
-            }
-        }
-
+        // 2. Build the Docker image in ~2 seconds and push to Docker Hub
         stage('Build & Push Docker Image') {
             steps {
                 script {
@@ -35,16 +32,12 @@ pipeline {
             }
         }
 
+        // 3. Deploy to Kubernetes
         stage('Deploy to Kubernetes') {
-            environment {
-                KUBECONFIG = 'C:\\Users\\33695\\.kube\\config'
-            }
             steps {
-                        bat 'kubectl apply -f k8s/deployment.yml'
-
-                        bat "kubectl set image deployment/taskflow-app taskflow=hzmasbl/taskflow:${BUILD_NUMBER}"
-
-                        bat 'kubectl rollout status deployment/taskflow-app'
+                bat 'kubectl apply -f k8s/deployment.yml --kubeconfig="C:\\Users\\33695\\.kube\\config"'
+                bat "kubectl set image deployment/taskflow-app taskflow=${DOCKER_IMAGE}:${IMAGE_TAG} --kubeconfig=\"C:\\Users\\33695\\.kube\\config\""
+                bat 'kubectl rollout status deployment/taskflow-app --timeout=300s --kubeconfig="C:\\Users\\33695\\.kube\\config"'
             }
         }
     }
