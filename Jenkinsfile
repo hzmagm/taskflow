@@ -3,8 +3,6 @@ pipeline {
     options {
         disableConcurrentBuilds()
     }
-
-
     environment {
         DOCKER_IMAGE = 'hzmasbl/taskflow'
         IMAGE_TAG    = "${BUILD_NUMBER}"

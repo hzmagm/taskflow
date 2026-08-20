@@ -1,4 +1,9 @@
 spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/taskflowdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${SPRING_DATASOURCE_USERNAME:taskflow}
+    password: ${SPRING_DATASOURCE_PASSWORD:secret}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
@@ -6,9 +11,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  docker:
-    compose:
-      lifecycle-management: start-and-stop
+        dialect: org.hibernate.dialect.MySQLDialect
 server:
   port: 8080
 management:
