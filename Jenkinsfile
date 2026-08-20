@@ -3,9 +3,7 @@ pipeline {
     options {
         disableConcurrentBuilds()
     }
-    triggers {
-        pollSCM('* * * * *')
-    }
+
 
     environment {
         DOCKER_IMAGE = 'hzmasbl/taskflow'
